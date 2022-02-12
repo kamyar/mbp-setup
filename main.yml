@@ -46,6 +46,16 @@
         name: authy
         state: present
 
+    - name: Install Sublime Merge
+      community.general.homebrew_cask:
+        name: sublime-merge
+        state: present
+
+    - name: Install VLC
+      community.general.homebrew_cask:
+        name: vlc
+        state: present
+
     - name: Install direnv
       community.general.homebrew:
         name: direnv
@@ -85,12 +95,39 @@
       ansible.builtin.copy:
         src: ~/Projects/laptop-setup/configs/com.apple.dock.plist
         dest: ~/Library/Preferences/com.apple.dock.plist
-
     - name: Restart Dock
       ansible.builtin.command: killall Dock
 
+    # Steam
     - name: Install Rosetta
       ansible.builtin.command: softwareupdate --install-rosetta --agree-to-license
+
+    # Git
+    - name: git Name
+      ansible.builtin.command: git config --global user.name "Kamyar Ghasemlou "
+    - name: git Email
+      ansible.builtin.command: git config --global user.email github@kamy.me
+    - name: .ssh exists
+      file:
+        path: ~/.ssh
+        state: directory
+    - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+      community.crypto.openssh_keypair:
+        path: ~/.ssh/github
+        comment: "github@kamy.me"
+        size: 4096
+    - name: SSH config
+      blockinfile:
+        path: ~/.ssh/config
+        create: yes
+        marker: "# {mark} ssh config #"
+        block: |
+          Host *
+          AddKeysToAgent yes
+          UseKeychain yes
+          IdentityFile ~/.ssh/id_rsa
+    - debug:
+        msg: Run this ->  eval $(ssh-agent -s) && ssh-add -K ~/.ssh/github && pbcopy < ~/.ssh/github.pub
 # btt
 # iterm2
 # backup
