@@ -1,0 +1,99 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Install 1Password
+      community.general.homebrew_cask:
+        name: 1password
+        state: present
+
+    - name: Install VSCode
+      community.general.homebrew_cask:
+        name: visual-studio-code
+        state: present
+
+    - name: Install Google Chrome
+      community.general.homebrew_cask:
+        name: google-chrome
+        state: present
+
+    - name: Install Spotify
+      community.general.homebrew_cask:
+        name: spotify
+        state: present
+
+    - name: Install Iterm2
+      community.general.homebrew_cask:
+        name: iterm2
+        state: present
+
+    - name: Install Slack
+      community.general.homebrew_cask:
+        name: slack
+        state: present
+
+    - name: Install Steam
+      community.general.homebrew_cask:
+        name: steam
+        state: present
+
+    - name: Install Better Touch Tool
+      community.general.homebrew_cask:
+        name: bettertouchtool
+        state: present
+
+    - name: Install Authy
+      community.general.homebrew_cask:
+        name: authy
+        state: present
+
+    - name: Install direnv
+      community.general.homebrew:
+        name: direnv
+        state: present
+
+    # Profile
+    - name: history customizations
+      blockinfile:
+        path: ~/.zshrc
+        create: yes
+        marker: "# {mark} history fixes fix #"
+        block: |
+          setopt HIST_EXPIRE_DUPS_FIRST
+          setopt HIST_IGNORE_DUPS
+          setopt HIST_IGNORE_ALL_DUPS
+          setopt HIST_IGNORE_SPACE
+          setopt HIST_FIND_NO_DUPS
+          setopt HIST_SAVE_NO_DUPS
+
+    - name: WORDCHARS fix
+      blockinfile:
+        path: ~/.zshrc
+        create: yes
+        marker: "# {mark} WORDCHARS fix #"
+        block: |
+          export WORDCHARS="*?_-[]~=;!$%^(){}<>"
+
+    # Files
+    - name: Project Symlink
+      ansible.builtin.file:
+        src: ~/Library/Mobile Documents/com~apple~CloudDocs/Projects/
+        dest: ~/Projects
+        state: link
+
+    # Dock
+    - name: Copy file Dock plist file
+      ansible.builtin.copy:
+        src: ~/Projects/laptop-setup/configs/com.apple.dock.plist
+        dest: ~/Library/Preferences/com.apple.dock.plist
+
+    - name: Restart Dock
+      ansible.builtin.command: killall Dock
+
+    - name: Install Rosetta
+      ansible.builtin.command: softwareupdate --install-rosetta --agree-to-license
+# btt
+# iterm2
+# backup
+# zoom
+# dock
+# separate desktops
