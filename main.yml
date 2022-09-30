@@ -93,7 +93,7 @@
     # Dock
     - name: Copy file Dock plist file
       ansible.builtin.copy:
-        src: ~/Projects/laptop-setup/configs/com.apple.dock.plist
+        src: '{{playbook_dir}}/configs/com.apple.dock.plist'
         dest: ~/Library/Preferences/com.apple.dock.plist
     - name: Restart Dock
       ansible.builtin.command: killall Dock
