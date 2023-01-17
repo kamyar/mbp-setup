@@ -1,5 +1,13 @@
 ---
-- hosts: localhost
+- 
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  hosts: localhost
+  vars_prompt:
+  - name: email
+    prompt: What is your email for github and ssh key?
+    private: false
+
   tasks:
     - name: Install 1Password
       community.general.homebrew_cask:
@@ -11,10 +19,11 @@
         name: visual-studio-code
         state: present
 
-    - name: Install Google Chrome
-      community.general.homebrew_cask:
-        name: google-chrome
-        state: present
+    # TODO: Make optional https://stackoverflow.com/a/48781996
+    # - name: Install Google Chrome
+    #   community.general.homebrew_cask:
+    #     name: google-chrome
+    #     state: present
 
     - name: Install Spotify
       community.general.homebrew_cask:
@@ -31,10 +40,11 @@
         name: slack
         state: present
 
-    - name: Install Steam
-      community.general.homebrew_cask:
-        name: steam
-        state: present
+    # TODO: Make optional https://stackoverflow.com/a/48781996
+    # - name: Install Steam
+    #   community.general.homebrew_cask:
+    #     name: steam
+    #     state: present
 
     - name: Install Better Touch Tool
       community.general.homebrew_cask:
@@ -98,15 +108,17 @@
     - name: Restart Dock
       ansible.builtin.command: killall Dock
 
+    # # TODO: Make optional https://stackoverflow.com/a/48781996
     # Steam
-    - name: Install Rosetta
-      ansible.builtin.command: softwareupdate --install-rosetta --agree-to-license
+    # - name: Install Rosetta
+    #   ansible.builtin.command: softwareupdate --install-rosetta --agree-to-license
 
     # Git
     - name: git Name
-      ansible.builtin.command: git config --global user.name "Kamyar Ghasemlou "
+      ansible.builtin.command: git config --global user.name "Kamyar Ghasemlou"
     - name: git Email
-      ansible.builtin.command: git config --global user.email github@kamy.me
+      ansible.builtin.command: git config --global user.email {{ email }}
+    # SSH key setup
     - name: .ssh exists
       file:
         path: ~/.ssh
@@ -114,7 +126,7 @@
     - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
       community.crypto.openssh_keypair:
         path: ~/.ssh/github
-        comment: "github@kamy.me"
+        comment: "{{ email }}"
         size: 4096
     - name: SSH config
       blockinfile:
@@ -126,8 +138,14 @@
           AddKeysToAgent yes
           UseKeychain yes
           IdentityFile ~/.ssh/id_rsa
+    - name: Add SSH key and copy the public one
+      ansible.builtin.command: eval $(ssh-agent -s) && ssh-add --apple-use-keychain ~/.ssh/github && pbcopy < ~/.ssh/github.pub 
+    - name: Add SSH key and copy the public one
+      ansible.builtin.command: open https://github.com/settings/ssh/new
+
+    # Finish
     - debug:
-        msg: Run this ->  eval $(ssh-agent -s) && ssh-add -K ~/.ssh/github && pbcopy < ~/.ssh/github.pub
+        msg: Done!
 # btt
 # iterm2
 # backup
